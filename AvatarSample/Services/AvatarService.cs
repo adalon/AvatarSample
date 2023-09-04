@@ -19,35 +19,30 @@ namespace AvatarSample
 
         public string GetAvatar(string email, bool useCache = true)
         {
-            // TODO: Refactor shared logic with GetAvatar (from commit)
-
-            if (useCache && cache.TryGet(email, out var avatar))
-            {
-                return avatar;
-            }
-
-            avatar = avatarProvider.DownloadAvatar(email);
-
-            if (useCache)
-            {
-                cache.Add(email, avatar);
-            }
-
-            return avatar;
+            return GetAvatarCore(
+                email,
+                provider => provider.DownloadAvatar(email),
+                useCache);
         }
 
         public string GetAvatar(Commit commit, bool useCommitter, bool useCache = true)
         {
-            // TODO: Refactor shared logic with GetAvatar (from email)
-
             var email = useCommitter ? commit.CommitterEmail : commit.AuthorEmail;
 
+            return GetAvatarCore(
+                email,
+                provider => provider.DownloadAvatar(email, commit.Sha),
+                useCache);
+        }
+
+        private string GetAvatarCore(string email, Func<IAvatarProvider, string> avatarProviderCallback, bool useCache = true)
+        {
             if (useCache && cache.TryGet(email, out var avatar))
             {
                 return avatar;
             }
 
-            avatar = avatarProvider.DownloadAvatar(email, commit.Sha);
+            avatar = avatarProviderCallback(avatarProvider);
 
             if (useCache)
             {
