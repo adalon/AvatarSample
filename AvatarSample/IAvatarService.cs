@@ -15,5 +15,7 @@ namespace AvatarSample
         string GetAvatar(string email, bool useCache = true);
 
         string GetAvatar(Commit commit, bool useCommitter, bool useCache = true);
+
+        string GetAvatar2(Commit commit, bool useCommitter, bool useCache = true);
     }
 }
